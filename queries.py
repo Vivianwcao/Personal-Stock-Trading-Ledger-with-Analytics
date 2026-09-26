@@ -50,11 +50,12 @@ def init_db(conn):
         fetched_at timestamptz not null
             default now(),
 
-        primary key(api_source, account_id)            
+        primary key(api_source, account_id),            
         
         Foreign Key (account_id) 
-        REFERENCES accounts(id)
-    );""")
+            REFERENCES accounts(id)
+    );
+    """)
 
     cursor.execute("""
     create table if not exists positions(
@@ -68,8 +69,9 @@ def init_db(conn):
         last_successful_sync timestamptz,
 
         Foreign Key (account_id) 
-        REFERENCES accounts(id)
-    );""")
+            REFERENCES accounts(id)
+    );
+    """)
 
     cursor.execute("""
         CREATE UNIQUE INDEX IF NOT EXISTS idx_activities_api_dedup 

@@ -181,9 +181,12 @@ def update_recent_orders(snaptrade, conn, account_id):
 
         if type == "BUY":
             amount *= -1
+        # ocassionally the API attach "order-" before the uuid
+        id = order["brokerage_order_id"].removeprefix("order-", "")
+
         records.append(
             (
-                order["brokerage_order_id"],
+                id,
                 account_id,
                 order["universal_symbol"]["raw_symbol"],
                 type,

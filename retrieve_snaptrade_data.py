@@ -61,6 +61,10 @@ def get_account_positions(snaptrade, account_id):
 
 if __name__ == "__main__":
     snaptrade = get_snaptrade_auth()
-    obj = get_accounts(snaptrade)
-    with open("./test/accounts.json", "w", encoding="utf-8") as f:
+    # obj = get_accounts(snaptrade)
+    # with open("./test/accounts.json", "w", encoding="utf-8") as f:
+    #     json.dump(obj, f, indent=2, default=str)
+
+    obj = get_orders_last_24hrs(snaptrade, "")
+    with open("./test/orders.json", "w", encoding="utf-8") as f:
         json.dump(obj, f, indent=2, default=str)
