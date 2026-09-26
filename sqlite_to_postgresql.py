@@ -102,27 +102,14 @@ def migrate_positions(postgres_conn, sqlite_conn):
 def migrate_activities(postgres_conn, sqlite_conn):
     sqlite_cursor = sqlite_conn.cursor()
 
-    rows = sqlite_cursor.execute("""
-        select
-            id,
-            account_id,
-            symbol,
-            type,
-            price,
-            units,
-            amount,
-            fee,
-            currency,
-            trade_date,
-            source   
-        from activities;
-        """)
+    rows = sqlite_cursor.execute("select * from activities;")
 
     with postgres_conn:
         with postgres_conn.cursor() as cur:
             for row in rows:
                 row = dict(row)
                 row["trade_date"] = convert_utc_string_to_timestamp(row["trade_date"])
+                row["updated_at"] = convert_utc_string_to_timestamp(row["updated_at"])
                 cur.execute(
                     """
                     insert into activities(
@@ -136,9 +123,10 @@ def migrate_activities(postgres_conn, sqlite_conn):
                         fee,
                         currency,
                         trade_date,
-                        source                     
+                        source,
+                        updated_at                     
                     ) 
-                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                     tuple(row.values()),
                 )
