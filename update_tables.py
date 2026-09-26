@@ -148,7 +148,7 @@ def update_activities(snaptrade, conn, account_id, start_date: None | datetime):
     update_last_fetched(conn, "activities", account_id)
 
     logger.info(
-        f"Successfully synced activities for account: {account_id} from {convert_utc_string_to_timestamp(start_date)}, and updated last_fetched successfully"
+        f"Successfully synced activities for account: {account_id}, and updated last_fetched successfully"
     )
     return {"status": "success"}
 

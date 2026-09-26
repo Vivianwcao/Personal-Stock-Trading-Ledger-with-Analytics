@@ -1,6 +1,8 @@
 import os
 import logging
 from datetime import datetime, date, timezone
+from decimal import Decimal
+from uuid import UUID
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,21 +15,26 @@ logger = logging.getLogger(__name__)
 def json_default(obj):
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return float(obj)
+    if isinstance(obj, UUID):
+        return str(obj)
     raise TypeError(f"Not serializable: {type(obj)}")
 
 
-def convert_utc_string_to_timestamp(str):
+def convert_utc_string_to_timestamp(timestamp_str):
     """API gives '2024-01-15T10:30:00.000Z' — convert to timezone-aware datetime."""
-    if not str:
+
+    if not timestamp_str:
         return None
-    return datetime.fromisoformat(str.replace("Z", "+00:00"))
+    return datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
 
 
-def convert_date_string_to_date(str):
+def convert_date_string_to_date(timestamp_str):
     """API gives '2024-01-15' — convert to a date object."""
-    if not str:
+    if not timestamp_str:
         return None
-    return date.fromisoformat(str)
+    return date.fromisoformat(timestamp_str)
 
 
 # result_set.columns: A tuple/list of column names (e.g., ["id", "account_name", "balance"]).

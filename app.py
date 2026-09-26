@@ -2,7 +2,6 @@ from snaptrade import get_snaptrade_auth
 import logging
 import json
 import os
-from dotenv import load_dotenv
 from handlers import (
     on_page_load,
     click_update_activities_and_get_transactions_by_account,

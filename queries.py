@@ -81,7 +81,8 @@ def init_db(conn):
 
     cursor.execute("""
         create index if not exists idx_transactions
-        on activities(account_id, symbol, trade_date);""")
+        on activities(account_id, symbol, trade_date);
+        """)
 
     # 2. View Creation
     cursor.execute(
