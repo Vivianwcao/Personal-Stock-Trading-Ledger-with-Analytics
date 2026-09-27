@@ -702,10 +702,12 @@ def get_snapshot_dates_by_account(conn, account_id):
     cursor.execute(
         """
         select distinct
-            last_successful_sync 
+            last_successful_sync, 
+            trigger
         from positions 
         where account_id = %s
-            and trigger = 'scheduled'
+        ORDER BY
+            last_successful_sync DESC
         """,
         (account_id,),
     )
