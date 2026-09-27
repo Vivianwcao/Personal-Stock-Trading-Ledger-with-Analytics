@@ -211,7 +211,7 @@ def trigger_update_positions_bulk(snaptrade, conn, trigger):
     for account in accounts:
         account_id = account["id"]
         update_positions_per_account(snaptrade, conn, account_id, trigger)
-        logger.info(f"Successfully updated positions for account: {account_id}.")
+        # logger.info(f"Successfully updated positions for account: {account_id}.")
         time.sleep(30)
 
 

@@ -57,8 +57,8 @@ def handle_update_orders_and_get_transactions(snaptrade, conn, data):
     )
 
 
-def handle_update_positions_event_bridge(snaptrade, conn, data):
-    return trigger_update_positions_bulk(snaptrade, conn, data.get("trigger"))
+def handle_update_positions_eventbridge(snaptrade, conn, data):
+    return trigger_update_positions_bulk(snaptrade, conn, "scheduled")
 
 
 def handle_get_snapshot_dates_by_account(snaptrade, conn, data):
@@ -133,7 +133,7 @@ ACTION_REGISTRY = {
     "update_activities_and_get_transactions_by_account": handle_update_activities_and_get_transactions_by_account,
     "update_orders_and_get_transactions_by_account": handle_update_orders_and_get_transactions,
     "update_and_get_accounts": handle_update_and_get_accounts,
-    "update_positions_event_bridge": handle_update_positions_event_bridge,
+    "update_positions_eventbridge": handle_update_positions_eventbridge,
     "update_positions_and_get_latest_analysis_by_account": handle_update_positions_and_get_latest_analysis_by_account,
     "get_all_accounts": handle_get_accounts,
     "get_transactions_on_recent_active_stocks_by_nickname": handle_get_transactions_on_recent_active_stocks_by_nickname,
@@ -154,20 +154,29 @@ def app_handler(event, context):
     try:
         # logger.info(json.dumps(event))
 
-        headers_in = event.get("headers") or {}
-        password = headers_in.get("x-app-password")
+        is_eventbridge = "body" not in event
 
-        print(os.environ.get("APP_PASSWORD"))
-        if password != os.environ.get("APP_PASSWORD"):
-            return {
-                "statusCode": 401,
-                "headers": HEADERS,
-                "body": json.dumps({"status": "fail", "error": "Incorrect password"}),
-            }
+        if is_eventbridge:
+            # no password validation
+            action = event.get("action")
+            data = event.get("data", {})
 
-        body = json.loads(event.get("body") or "{}")
-        action = body.get("action")
-        data = body.get("data", {})
+        else:
+            # front end call through API Gateway
+            headers_in = event.get("headers") or {}
+            password = headers_in.get("x-app-password")
+            if password != os.environ.get("APP_PASSWORD"):
+                return {
+                    "statusCode": 401,
+                    "headers": HEADERS,
+                    "body": json.dumps(
+                        {"status": "fail", "error": "Incorrect password"}
+                    ),
+                }
+
+            body = json.loads(event.get("body") or "{}")
+            action = body.get("action")
+            data = body.get("data", {})
 
         controller = ACTION_REGISTRY.get(action)
         if not controller:
@@ -179,16 +188,16 @@ def app_handler(event, context):
 
         snaptrade = get_snaptrade_auth()
 
-        # Local testing
-        conn = psycopg2.connect(
-            os.environ["DATABASE_URL"],
-            cursor_factory=psycopg2.extras.RealDictCursor,
-        )
-
+        # # Local testing
         # conn = psycopg2.connect(
-        #     os.environ["DATABASE_URL_POOLED"],
+        #     os.environ["DATABASE_URL"],
         #     cursor_factory=psycopg2.extras.RealDictCursor,
         # )
+
+        conn = psycopg2.connect(
+            os.environ["DATABASE_URL_POOLED"],
+            cursor_factory=psycopg2.extras.RealDictCursor,
+        )
 
         try:
             res = controller(snaptrade, conn, data)

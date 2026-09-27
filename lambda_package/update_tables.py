@@ -89,7 +89,7 @@ def update_accounts(snaptrade, conn):
                     for account in accounts
                 ],
             )
-    logger.info("Updated accounts table successfully via HTTP batch.")
+    # logger.info("Updated accounts table successfully via HTTP batch.")
     return {"status": "success"}
 
 
@@ -147,9 +147,9 @@ def update_activities(snaptrade, conn, account_id, start_date: None | datetime):
 
     update_last_fetched(conn, "activities", account_id)
 
-    logger.info(
-        f"Successfully synced activities for account: {account_id}, and updated last_fetched successfully"
-    )
+    # logger.info(
+    #     f"Successfully synced activities for account: {account_id}, and updated last_fetched successfully"
+    # )
     return {"status": "success"}
 
 
@@ -207,9 +207,9 @@ def update_recent_orders(snaptrade, conn, account_id):
             )
 
     update_last_fetched(conn, "orders", account_id)
-    logger.info(
-        f"Successfully synced recent orders for account: {account_id} from last 24 hours, and updated last_fetched successfully"
-    )
+    # logger.info(
+    #     f"Successfully synced recent orders for account: {account_id} from last 24 hours, and updated last_fetched successfully"
+    # )
     return {"status": "success"}
 
 
