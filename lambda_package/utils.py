@@ -1,11 +1,8 @@
-import os
 import logging
 from datetime import datetime, date, timezone
 from decimal import Decimal
 from uuid import UUID
 from dotenv import load_dotenv
-
-load_dotenv()
 
 
 # ── Logging ─────────────────────────────────────────────────────────────────

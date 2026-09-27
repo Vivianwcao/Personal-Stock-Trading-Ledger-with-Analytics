@@ -1,7 +1,6 @@
 import os
-from dotenv import load_dotenv
 import duckdb
-from update_tables import insert_activities_query
+from lambda_package.update_tables import insert_activities_query
 import psycopg2
 import psycopg2.extras
 
@@ -120,7 +119,7 @@ if __name__ == "__main__":
 
     # # Local testing
     # conn = psycopg2.connect(
-    #     os.environ["DATABASE_URL_POOLED"],
+    #     os.environ["DATABASE_URL"],
     #     cursor_factory=psycopg2.extras.RealDictCursor,
     # )
 

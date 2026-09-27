@@ -25,6 +25,9 @@ from utils import json_default
 import psycopg2
 import psycopg2.extras
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 logger = logging.getLogger(__name__)

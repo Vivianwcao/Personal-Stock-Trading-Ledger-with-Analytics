@@ -1,6 +1,12 @@
 import sqlite3
 import psycopg2
-from utils import convert_date_string_to_date, convert_utc_string_to_timestamp
+import psycopg2.extras
+import os
+
+from lambda_package.utils import (
+    convert_date_string_to_date,
+    convert_utc_string_to_timestamp,
+)
 
 
 # accounts
@@ -137,7 +143,11 @@ if __name__ == "__main__":
     sqlite_conn = sqlite3.connect("stocks.db")
     sqlite_conn.row_factory = sqlite3.Row
 
-    postgres_conn = psycopg2.connect("postgresql://postgres:1234@localhost:5432/stocks")
+    # Local testing
+    postgres_conn = psycopg2.connect(
+        os.environ["DATABASE_URL"],
+        cursor_factory=psycopg2.extras.RealDictCursor,
+    )
 
     # migrate_accounts(postgres_conn, sqlite_conn)
     # migrate_positions(postgres_conn, sqlite_conn)

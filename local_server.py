@@ -1,6 +1,5 @@
 from flask import Flask, request, Response
-import json
-from app import app_handler
+from lambda_package.app import app_handler
 
 app = Flask(__name__)
 
