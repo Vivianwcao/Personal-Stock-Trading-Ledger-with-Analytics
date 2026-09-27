@@ -1,0 +1,20 @@
+Stock-Trading-App/
+├── .aws-sam/
+├── template.yaml
+├── samconfig.toml
+├── lambda_package/
+│   ├── app.py
+│   └── requirements.txt
+├── local/
+├── .env
+└── .venv/
+
+sam validate --lint
+
+aws sts get-caller-identity --profile personal
+aws configure get region --profile personal
+
+sam build --use-container
+sam deploy --guided --profile personal
+
+sam deploy --profile personal

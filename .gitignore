@@ -222,3 +222,4 @@ __marimo__/
 test/
 *.yaml
 *.toml
+.aws-sam/
