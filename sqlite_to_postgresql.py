@@ -133,6 +133,7 @@ def migrate_activities(postgres_conn, sqlite_conn):
 
 
 if __name__ == "__main__":
+    # Terminal run psql -h localhost -U postgres -d stocks
     sqlite_conn = sqlite3.connect("stocks.db")
     sqlite_conn.row_factory = sqlite3.Row
 
