@@ -1,5 +1,5 @@
 import json
-from snaptrade import get_snaptrade_auth
+from .snaptrade import get_snaptrade_auth
 
 
 def get_accounts(snaptrade):

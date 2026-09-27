@@ -1,8 +1,8 @@
-from snaptrade import get_snaptrade_auth
+from .snaptrade import get_snaptrade_auth
 import logging
 import json
 import os
-from handlers import (
+from .handlers import (
     on_page_load,
     click_update_activities_and_get_transactions_by_account,
     click_update_orders_and_get_transactions_by_account,
@@ -11,8 +11,8 @@ from handlers import (
     click_get_latest_accounts,
     click_get_transactions_active_stocks_by_nickname,
 )
-from update_tables import update_account_nickname
-from queries import (
+from .update_tables import update_account_nickname
+from .queries import (
     get_all_active_accounts,
     get_latest_analysis_all_accounts,
     get_latest_analysis_by_account,
@@ -21,7 +21,7 @@ from queries import (
     compare_analysis_by_account_across_snapshots,
     get_transactions_by_stocks_by_nickname,
 )
-from utils import json_default
+from .utils import json_default
 import psycopg2
 import psycopg2.extras
 
@@ -157,6 +157,7 @@ def app_handler(event, context):
         headers_in = event.get("headers") or {}
         password = headers_in.get("x-app-password")
 
+        print(os.environ.get("APP_PASSWORD"))
         if password != os.environ.get("APP_PASSWORD"):
             return {
                 "statusCode": 401,

@@ -1,5 +1,5 @@
-from datetime import date, datetime, timedelta
-from utils import convert_utc_string_to_timestamp
+from datetime import datetime, timedelta
+from .utils import convert_utc_string_to_timestamp
 
 
 # one time

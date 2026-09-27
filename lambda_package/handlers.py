@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import time
 
-from queries import (
+from .queries import (
     get_all_active_accounts,
     get_nickname_by_account,
     get_recently_active_stocks_by_nickname,
@@ -17,13 +17,13 @@ from queries import (
     get_stocks_with_updates_by_account,
     get_latest_trade_date_by_account,
 )
-from update_tables import (
+from .update_tables import (
     update_accounts,
     update_activities,
     update_recent_orders,
     update_positions_per_account,
 )
-from utils import calculate_wait_time
+from .utils import calculate_wait_time
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 logger = logging.getLogger(__name__)
