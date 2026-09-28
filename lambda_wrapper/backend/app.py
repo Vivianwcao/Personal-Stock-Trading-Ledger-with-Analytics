@@ -45,7 +45,7 @@ def handle_update_activities_and_get_transactions_by_account(snaptrade, conn, da
         snaptrade,
         conn,
         data.get("account_id"),
-        seconds=60,
+        seconds=45,
         activities_hours=4,
         is_bulk=False,
     )
@@ -53,7 +53,7 @@ def handle_update_activities_and_get_transactions_by_account(snaptrade, conn, da
 
 def handle_update_orders_and_get_transactions(snaptrade, conn, data):
     return click_update_orders_and_get_transactions_by_account(
-        snaptrade, conn, data.get("account_id"), seconds=60
+        snaptrade, conn, data.get("account_id"), seconds=45
     )
 
 
