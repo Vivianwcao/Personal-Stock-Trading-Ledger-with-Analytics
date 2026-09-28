@@ -398,6 +398,22 @@ def get_latest_trade_date_by_account(conn, account_id):
     return row["latest_date"] if row else None
 
 
+def get_latest_trade_date_by_account_by_source(conn, account_id, source):
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+            select 
+                max(trade_date) latest_date
+            from activities
+            where account_id = %s
+                and source = %s
+        """,
+        (account_id, source),
+    )
+    row = cursor.fetchone()
+    return row["latest_date"] if row else None
+
+
 def get_all_stocks_all_nicknames(conn):
     rows = conn.execute(
         """
