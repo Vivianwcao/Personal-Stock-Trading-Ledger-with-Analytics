@@ -16,6 +16,7 @@ from .queries import (
     get_all_stocks_all_nicknames,
     get_stocks_with_updates_by_account,
     get_latest_trade_date_by_account,
+    get_latest_trade_date_by_account_by_source,
 )
 from .update_tables import (
     update_accounts,
@@ -103,8 +104,10 @@ def click_update_activities_and_get_transactions_by_account(
             last_trade_date = None
 
             if not is_bulk:
-                # find the latest transaction_date obtained from API
-                last_trade_date = get_latest_trade_date_by_account(conn, account_id)
+                # find the latest transaction_date obtained from activities API
+                last_trade_date = get_latest_trade_date_by_account_by_source(
+                    conn, account_id, "api_activities"
+                )
 
             start_date = None if is_bulk or not last_trade_date else last_trade_date
             res = update_activities(snaptrade, conn, account_id, start_date)
