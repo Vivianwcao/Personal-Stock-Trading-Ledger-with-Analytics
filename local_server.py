@@ -1,5 +1,5 @@
 from flask import Flask, request, Response
-from lambda_package.app import app_handler
+from lambda_wrapper.backend.app import app_handler
 
 app = Flask(__name__)
 

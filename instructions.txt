@@ -1,13 +1,35 @@
 Stock-Trading-App/
-├── .aws-sam/
 ├── template.yaml
 ├── samconfig.toml
-├── lambda_package/
-│   ├── app.py
-│   └── requirements.txt
-├── local/
 ├── .env
+│
+├── lambda_wrapper/       ← deployment wrapper
+│   └──equirements.txt
+│   └── backend/          ← Python package
+│       ├── __init__.py
+│       ├── app.py
+│       ├── handlers.py
+│       └── database.py
+│
+├── local/
+│   └── server.py
+├── local_server.py 
 └── .venv/
+
+LOCAL:
+lambda_wrapper.backend.app
+       ↑
+       needed to reach the package
+
+INSIDE app.py:
+.backend
+  ↑
+  relative to backend
+
+LAMBDA:
+backend.app.app_handler
+       ↑
+       lambda_wrapper has become the deployment root
 
 sam validate --lint
 
