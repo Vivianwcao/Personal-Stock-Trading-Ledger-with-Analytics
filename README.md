@@ -61,7 +61,7 @@ Each trading account dashboard is divided into two primary sub-views: an
 
 _Finished application_
 
-<img width="100%" alt="1" src="https://github.com/user-attachments/assets/ec72b991-2d6a-4003-960f-cff7f1f6a247" />
+<img width="100%" alt="1" src="https://github.com/user-attachments/assets/268f0184-9f6c-4ace-b3f7-f8d182c4a651" />
 <img width="100%" alt="2" src="https://github.com/user-attachments/assets/6fe29aa1-d991-4e60-87d7-10b3efd54e70" />
 <img width="100%" alt="3" src="https://github.com/user-attachments/assets/fa6463e2-884b-4580-b8c5-49a93b09f2fe" />
 <img width="100%" alt="4" src="https://github.com/user-attachments/assets/7742e59a-64ac-45d4-909a-6ed4c9976e9b" />
