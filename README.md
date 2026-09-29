@@ -1,4 +1,4 @@
-# Multi-Account Portfolio Analytics Engine
+# Stock Portfolio Analytics Engine
 
 A tailored stock analytics tool built to replace complex spreadsheets by syncing multi-account broker feeds into a custom database for real-time cost tracking and trade simulations.
 
@@ -38,10 +38,10 @@ Each trading account dashboard is divided into two primary sub-views: an **Analy
 
 *Finished application*
 
-<img width="80%" alt="1" src="https://github.com/user-attachments/assets/ec72b991-2d6a-4003-960f-cff7f1f6a247" />
-<img width="80%" alt="2" src="https://github.com/user-attachments/assets/6fe29aa1-d991-4e60-87d7-10b3efd54e70" />
-<img width="80%" alt="3" src="https://github.com/user-attachments/assets/fa6463e2-884b-4580-b8c5-49a93b09f2fe" />
-<img width="80%" alt="4" src="https://github.com/user-attachments/assets/7742e59a-64ac-45d4-909a-6ed4c9976e9b" />
+<img width="95%" alt="1" src="https://github.com/user-attachments/assets/ec72b991-2d6a-4003-960f-cff7f1f6a247" />
+<img width="95%" alt="2" src="https://github.com/user-attachments/assets/6fe29aa1-d991-4e60-87d7-10b3efd54e70" />
+<img width="95%" alt="3" src="https://github.com/user-attachments/assets/fa6463e2-884b-4580-b8c5-49a93b09f2fe" />
+<img width="95%" alt="4" src="https://github.com/user-attachments/assets/7742e59a-64ac-45d4-909a-6ed4c9976e9b" />
 
 ### Key Capabilities
 
