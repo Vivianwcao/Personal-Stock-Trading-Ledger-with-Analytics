@@ -80,11 +80,7 @@ _Finished application_
   - **Chart View:** Renders bar and line charts to visualize asset allocation,
     growth trajectories, and cost-versus-market-price comparisons across stocks
     within an account over selected timeframes (e.g., 2 weeks or 1 month).
-- **Wealthsimple-Aligned Rolling Aggregation Engine:** Uses a specialized
-  database view (`transactions`) with complex SQL window functions to compute
-  custom average purchase prices. The engine recalculates cost basis with every
-  new buy and adjusts totals during sales without altering holding units,
-  matching Wealthsimple's internal calculation logic.
+- **Wealthsimple-Aligned Rolling Aggregation Engine:** Uses a specialized database view (`transactions`) with complex SQL window functions to calculate average purchase prices and cost basis based on Wealthsimple's calculation logic. The calculation updates the average purchase price with each new buy, while sales use the average purchase price at that point to deduct the corresponding cost basis without changing the historical average purchase price.
 - **DuckDB Ingestion and Normalization Pipeline:** Uses DuckDB to parse, clean,
   and normalize legacy Wealthsimple CSV exports before loading them into
   PostgreSQL, standardizing timezones, stock symbols, and unit definitions.
@@ -144,10 +140,7 @@ flowchart TD
 
 The database architecture went through three iterations during development:
 
-1. **Turso (LibSQL):** Evaluated initially, but Turso calculates billing based
-   on total row reads. Because the `transactions` view executes complex window
-   functions across large trade histories, queries rapidly exceeded Turso's read
-   tier limits.
+1. **Turso (LibSQL):** Initially implemented and fully tested. Later re-evaluated after looking more closely at Turso’s billing model, which is based on rows read. The (`transactions`) view involves complex window functions and calculations over large trade histories, so the number of rows read can grow quickly and exceed Turso’s read tier limits.
 2. **SQLite3 on AWS EFS:** Rebuilt and fully completed the application using
    SQLite3 with AWS EFS mounting. While functional, testing revealed operational
    limitations and performance constraints with EFS filesystem mounts during
@@ -175,57 +168,22 @@ the user.
 
 ### 1. Matching Wealthsimple Calculation Logic via Complex SQL Views
 
-- **Context:** Standard portfolio formulas modify holding units or average costs
-  in ways that diverged from Wealthsimple's calculations. The trader required a
-  calculation method that recalculates average buy prices on new purchases,
-  holds cost basis steady during sales, incorporates dividends, and resets all
-  position metrics when a share count hits zero.
-- **Solution:** Built a dedicated database view (`transactions`) using SQL
-  window functions partitioned by account, symbol, and trade cycle
-  (`PARTITION BY account_id, symbol, cycle_id`). When a sale reduces a
-  position's share count to zero, an automated trigger increments the `cycle_id`
-  counter for that stock. Subsequent buys use the new `cycle_id`, isolating the
-  new position from historical trade calculations while matching Wealthsimple's
-  underlying math.
+- **Problem:** Standard portfolio formulas recalculate average cost across both purchases and sales, which diverged from Wealthsimple's calculations. Wealthsimple recalculates the average buy price incrementally with each new purchase. When shares are sold, it keeps that average buy price unchanged and deducts the cost basis of the shares sold using the average buy price at that point. The calculation also needs to incorporate dividends and reset all position metrics when the share count reaches zero.
 
-### 2. Reconciling Historical Baseline Gaps Between CSV and API Feeds
+- **Solution:** Built a dedicated database view (`transactions`) using SQL window functions partitioned by account, symbol, and trade cycle (`PARTITION BY account_id, symbol, cycle_id`). Rolling aggregations are used to calculate the incremental average buy price as new purchases are made. For each sale, a recursive calculation finds the average buy price that existed immediately before the sale, then uses that value to calculate the cost basis of the shares sold. When a sale reduces a position's share count to zero, an automated trigger increments the `cycle_id` counter for that stock. Subsequent buys use the new `cycle_id`, isolating the new position from historical trade calculations while matching Wealthsimple's underlying math.
 
-- **Context:** The trader's history begins in 2019, but SnapTrade API data
-  cutoffs vary randomly by account (some APIs only provide history back to 2022,
-  2023, or 2025). Furthermore, account opening dates returned by the API are
-  unreliable.
-- **Solution:** Established a hybrid ingestion model. Historical trade data from
-  2019 onward is initialized using Wealthsimple CSV exports processed through a
-  DuckDB pipeline, while ongoing daily activity and real-time order updates are
-  layered on top via the SnapTrade API.
+### 2. Handling Missing Historical Trade Data
 
-### 3. Normalizing CSV Data Discrepancies via DuckDB
+- **Problem:** The trader's history goes back to 2019, but SnapTrade API history varies by account. Some accounts only have data going back to 2022, 2023, or 2025, and the account opening dates returned by the API aren't reliable.
+- **Solution:** Used a hybrid approach. Loaded the historical data from 2019 onward using Wealthsimple CSV exports and a DuckDB pipeline, then used the SnapTrade API for ongoing daily activity and real-time order updates.
 
-- **Context:** Wealthsimple CSV exports contained several data inconsistencies:
-  timestamps were formatted in local Pacific Time (Vancouver), stock ticker
-  symbols included custom exchange extensions or legacy renamed tickers, and the
-  `units` column was overloaded to represent both transaction quantities and
-  portfolio holdings.
-- **Solution:** Built a DuckDB ETL processing script to clean raw CSV records
-  before database insertion. DuckDB converted Pacific timestamps into UTC ISO
-  8601 strings, mapped renamed tickers to standard symbols, and cleaned the
-  `units` field to distinguish transaction quantities from total holdings.
+### 3. Data Cleaning and Normalization Across CSV and API Feeds
 
-### 4. Aligning Sign Conventions Across Feeds and Orders API
+- **Problem:** The Wealthsimple CSV exports and SnapTrade API feeds had several inconsistencies that needed to be standardized before database insertion. Wealthsimple timestamps were in Pacific Time (Vancouver), ticker symbols included custom exchange extensions and legacy renamed tickers, and the `units` column could represent either transaction quantities or portfolio holdings. The SnapTrade Orders API also returned all numeric values as positive numbers, unlike the cash-flow sign conventions used by the Wealthsimple CSVs and SnapTrade Activities API.
 
-- **Context:** Wealthsimple CSVs and the SnapTrade Activities API follow
-  cash-flow accounting signs (buys show negative cash amounts and positive
-  units; sells show positive cash amounts and negative units). However, the
-  SnapTrade Orders API (used for real-time 24-hour buy/sell updates) returns all
-  numeric values as positive numbers without directional signs.
-- **Solution:** Programmed a sign normalization module in Python for incoming
-  Orders API payloads. The script evaluates the order action (Buy vs. Sell) and
-  dynamically applies appropriate positive or negative signs to units and
-  amounts before writing to the `activities` table. This aligns real-time order
-  data with historical activity feeds, ensuring rolling position calculations in
-  the database remain accurate.
+- **Solution:** Built data processing scripts to clean and normalize the different feeds before writing them to the database. DuckDB processes the Wealthsimple CSVs by converting Pacific timestamps to UTC ISO 8601, mapping renamed tickers to standard symbols, and separating transaction quantities from total holdings in the `units` field. A Python sign normalization module processes incoming Orders API data based on the order action, applying the correct positive or negative signs to units and amounts. This keeps historical CSV data and real-time API data consistent for the database's rolling position calculations.
 
-### 5. Preventing API Rate-Limit Overshoot via `last_fetch` Tracking
+### 4. Preventing API Rate-Limit Overshoot via `last_fetch` Tracking
 
 - **Context:** SnapTrade enforces strict per-minute and per-account rate limits
   on personal API developer keys. Frequent button clicks or rapid page refreshes
