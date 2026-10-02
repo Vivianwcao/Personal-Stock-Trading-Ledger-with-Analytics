@@ -490,6 +490,7 @@ def get_stocks_with_updates_by_account(
 
 
 # get transactions on selected stocks by one nickname
+# user likes to display in desc trade_date order (also enforced in front-end)
 def get_transactions_by_stocks_by_nickname(conn, nickname, stocks):
     placeholder = ",".join("%s" for _ in stocks)
     cursor = conn.cursor()
@@ -663,7 +664,11 @@ def get_transactions_by_stocks_by_nickname(conn, nickname, stocks):
             END AS realized_profit
         FROM tree t
         join partitioned p
-        using(id);
+        using(id)
+        order by           
+            account_id,
+            nickname,
+            trade_date desc;
         """,
         (nickname, *stocks, nickname),
     )
